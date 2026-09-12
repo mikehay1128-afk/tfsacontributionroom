@@ -99,10 +99,11 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
+  "@type": "WebApplication",
   "name": "TFSA Contribution Room Calculator",
   "applicationCategory": "FinanceApplication",
   "operatingSystem": "Web",
+  "browserRequirements": "Requires JavaScript",
   "offers": {
     "@type": "Offer",
     "price": "0",
@@ -115,6 +116,15 @@
     "@type": "Audience",
     "audienceType": "Canadian residents with a TFSA"
   }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "TFSA Contribution Room",
+  "alternateName": "tfsacontributionroom.ca",
+  "url": "https://www.tfsacontributionroom.ca/"
 }
 </script>
 <script type="application/ld+json">
@@ -145,6 +155,8 @@
      ============================================================ -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
 <script>(adsbygoogle = window.adsbygoogle || []).push({ google_ad_client: "ca-pub-XXXXXXXXXXXXXXXX", enable_page_level_ads: true });</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -347,6 +359,33 @@
   }
   .calc-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(240,165,0,0.35); }
   .calc-btn:active { transform: translateY(0); }
+
+  /* SECONDARY ACTION BUTTONS (copy / print) */
+  .action-btn-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 14px;
+  }
+  @media(max-width: 500px) { .action-btn-row { flex-direction: column; } }
+  .action-btn {
+    flex: 1;
+    background: white;
+    color: var(--navy);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 12px 18px;
+    border: 2px solid var(--grey-border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .action-btn:hover { border-color: var(--gold); background: var(--gold-muted); }
+  .action-btn.copied { border-color: var(--success); background: var(--success-bg); color: var(--success); }
 
   /* RESULTS */
   .results-area {
@@ -620,6 +659,32 @@
   }
   .cra-note strong { color: #5a4000; }
 
+  /* BIRTH YEAR TABLE */
+  .birthyear-table-wrap {
+    border: 2px solid var(--grey-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-top: 16px;
+  }
+  .birthyear-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+  .birthyear-table th {
+    background: var(--navy);
+    color: rgba(255,255,255,0.85);
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .birthyear-table td { padding: 9px 14px; border-bottom: 1px solid var(--grey-border); }
+  .birthyear-table tr:nth-child(even) td { background: var(--grey-bg); }
+  .birthyear-table tr:last-child td { border-bottom: none; }
+
   /* FAQ */
   .faq-section h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); color: var(--navy); margin-bottom: 32px; text-align: center; }
   .faq-list { max-width: 780px; margin: 0 auto; }
@@ -765,6 +830,15 @@
     box-shadow: 0 4px 16px rgba(240,165,0,0.15);
     transform: translateY(-1px);
   }
+
+  /* PRINT STYLES */
+  @media print {
+    .hero, .ad-wrapper, .sidebar-ad, .action-btn-row, .calc-btn,
+    footer, .faq-section, section:has(.topic-card), .modal-overlay,
+    section[style*="background:var(--grey-bg)"] { display: none !important; }
+    .calc-wrapper { margin-top: 0; }
+    body { font-size: 12pt; }
+  }
 </style>
 </head>
 <body>
@@ -790,25 +864,25 @@
     <div class="calc-body">
       <div class="form-grid">
         <div class="form-group">
-          <label>Year of Birth <span>(determines when your room began)</span></label>
-          <select id="birthYear"></select>
+          <label for="birthYear">Year of Birth <span>(determines when your room began)</span></label>
+          <select id="birthYear" name="birthYear"></select>
         </div>
         <div class="form-group">
-          <label>Year Became Canadian Resident <span>(room only accumulates as resident)</span></label>
-          <select id="residentYear"></select>
+          <label for="residentYear">Year Became Canadian Resident <span>(room only accumulates as resident)</span></label>
+          <select id="residentYear" name="residentYear"></select>
         </div>
         <div class="form-group">
-          <label>Total Lifetime TFSA Contributions <span>(all accounts, all years)</span></label>
+          <label for="contributions">Total Lifetime TFSA Contributions <span>(all accounts, all years)</span></label>
           <div class="input-prefix-wrap">
             <span class="input-prefix">$</span>
-            <input type="number" id="contributions" placeholder="0" min="0" step="500">
+            <input type="number" id="contributions" name="contributions" placeholder="0" min="0" step="500">
           </div>
         </div>
         <div class="form-group">
-          <label>Total Withdrawals Before 2026 <span>(prior-year withdrawals restore room)</span></label>
+          <label for="withdrawals">Total Withdrawals Before 2026 <span>(prior-year withdrawals restore room)</span></label>
           <div class="input-prefix-wrap">
             <span class="input-prefix">$</span>
-            <input type="number" id="withdrawals" placeholder="0" min="0" step="500">
+            <input type="number" id="withdrawals" name="withdrawals" placeholder="0" min="0" step="500">
           </div>
         </div>
       </div>
@@ -839,6 +913,12 @@
             <div class="result-amount" style="font-size:1.6rem">$7,000</div>
             <div class="result-sub">Set by CRA for 2026</div>
           </div>
+        </div>
+
+        <!-- COPY / PRINT ACTIONS -->
+        <div class="action-btn-row">
+          <button class="action-btn" id="copyBtn" onclick="copyResults()">📋 Copy My Results</button>
+          <button class="action-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
         </div>
 
         <!-- ============================================================
@@ -958,6 +1038,37 @@
             <li>2023: $6,500</li>
             <li>2024–2026: $7,000/year</li>
           </ul>
+        </div>
+
+        <!-- BIRTH YEAR LONG-TAIL CONTENT BLOCK -->
+        <div class="edu-section" id="by-birth-year">
+          <h3>TFSA Room by Birth Year: When Did Your Room Start?</h3>
+          <p>Your first eligible year for TFSA room is whichever comes later: the year you turned 18, or 2009 (when the TFSA program began). If you were also a Canadian resident the whole time, here's what that means for common birth years:</p>
+          <div class="birthyear-table-wrap">
+            <div class="table-scroll">
+              <table class="birthyear-table">
+                <thead>
+                  <tr>
+                    <th>Birth Year</th>
+                    <th>Turned 18</th>
+                    <th>First Eligible Year</th>
+                    <th>Max Lifetime Room (2026)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>1990 or earlier</td><td>2008 or earlier</td><td>2009</td><td>$109,000</td></tr>
+                  <tr><td>1991</td><td>2009</td><td>2009</td><td>$109,000</td></tr>
+                  <tr><td>1995</td><td>2013</td><td>2013</td><td>$89,000</td></tr>
+                  <tr><td>2000</td><td>2018</td><td>2018</td><td>$57,000</td></tr>
+                  <tr><td>2003</td><td>2021</td><td>2021</td><td>$39,500</td></tr>
+                  <tr><td>2005</td><td>2023</td><td>2023</td><td>$27,500</td></tr>
+                  <tr><td>2007</td><td>2025</td><td>2025</td><td>$14,000</td></tr>
+                  <tr><td>2008</td><td>2026</td><td>2026</td><td>$7,000</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <p style="margin-top:12px;">Turned 18 partway through a year? It doesn't matter which month — the CRA gives you the full annual room for that entire calendar year. Use the calculator above with your exact birth year for a precise, personalized figure rather than the rounded examples above.</p>
         </div>
 
         <div class="edu-section">
@@ -1250,6 +1361,8 @@
     return '$' + n.toLocaleString('en-CA');
   }
 
+  let lastResult = null;
+
   function calculate() {
     const birth = parseInt(birthSel.value);
     const resident = parseInt(resSel.value);
@@ -1275,6 +1388,8 @@
     const availableRoom = lifetimeRoom - contributions + withdrawals;
     const isOver = availableRoom < 0;
 
+    lastResult = { birth, resident, contributions, withdrawals, lifetimeRoom, availableRoom, isOver };
+
     // Show results
     const resultsEl = document.getElementById('results');
     resultsEl.style.display = 'block';
@@ -1296,6 +1411,11 @@
     document.getElementById('availableRoom').textContent = fmt(availableRoom);
     document.getElementById('lifetimeRoom').textContent = fmt(lifetimeRoom);
 
+    // Reset copy button state on recalculation
+    const copyBtn = document.getElementById('copyBtn');
+    copyBtn.classList.remove('copied');
+    copyBtn.textContent = '📋 Copy My Results';
+
     // Table
     const tbody = document.getElementById('tableBody');
     tbody.innerHTML = '';
@@ -1315,6 +1435,55 @@
 
     // Scroll to results
     resultsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // Copy results to clipboard as plain text
+  function copyResults() {
+    if (!lastResult) return;
+    const r = lastResult;
+    const text = [
+      'TFSA Contribution Room Summary (2026)',
+      '--------------------------------------',
+      `Birth year: ${r.birth}`,
+      `Canadian resident since: ${r.resident === 2009 ? '2009 or earlier' : r.resident}`,
+      `Total lifetime contributions entered: ${fmt(r.contributions)}`,
+      `Total withdrawals before 2026 entered: ${fmt(r.withdrawals)}`,
+      '',
+      `Lifetime accumulated room: ${fmt(r.lifetimeRoom)}`,
+      `Available room for 2026: ${fmt(r.availableRoom)}`,
+      r.isOver ? 'Warning: this suggests an over-contribution — verify with CRA My Account.' : '',
+      '',
+      'Estimate only. Verify with CRA My Account before contributing.',
+      'Generated at tfsacontributionroom.ca'
+    ].filter(Boolean).join('\n');
+
+    const copyBtn = document.getElementById('copyBtn');
+    const finish = () => {
+      copyBtn.classList.add('copied');
+      copyBtn.textContent = '✅ Copied!';
+      setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        copyBtn.textContent = '📋 Copy My Results';
+      }, 2000);
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(finish).catch(() => fallbackCopy(text, finish));
+    } else {
+      fallbackCopy(text, finish);
+    }
+  }
+
+  function fallbackCopy(text, cb) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+    cb();
   }
 
   // FAQ accordion
@@ -1511,16 +1680,16 @@
       <p>If you immigrated to Canada, your TFSA contribution room works differently than for lifelong Canadian residents. Here's everything you need to know.</p>
       <h4>When does your room start?</h4>
       <p>Your TFSA contribution room begins accumulating in the <strong>later of</strong>: the year you turned 18, or the year you became a Canadian resident for tax purposes. There is <strong>no retroactive room</strong> for years before you moved to Canada.</p>
-      <p>For example: if you immigrated in 2019 and were already over 18, your room started accumulating in 2019. Your lifetime room as of 2026 would be a maximum of $47,500 (2019–2026 limits combined), not the full $109,000.</p>
+      <p>For example: if you immigrated in 2019 and were already over 18, your room started accumulating in 2019. Your lifetime room as of 2026 would be a maximum of $51,500 (2019–2026 limits combined), not the full $109,000.</p>
       <h4>TFSA room by immigration year (maximum, if over 18 on arrival)</h4>
       <ul>
-        <li><strong>Arrived 2019:</strong> up to $47,500</li>
-        <li><strong>Arrived 2020:</strong> up to $41,500</li>
-        <li><strong>Arrived 2021:</strong> up to $35,500</li>
-        <li><strong>Arrived 2022:</strong> up to $29,500</li>
-        <li><strong>Arrived 2023:</strong> up to $20,500</li>
-        <li><strong>Arrived 2024:</strong> up to $14,000</li>
-        <li><strong>Arrived 2025:</strong> up to $7,000</li>
+        <li><strong>Arrived 2019:</strong> up to $51,500</li>
+        <li><strong>Arrived 2020:</strong> up to $45,500</li>
+        <li><strong>Arrived 2021:</strong> up to $39,500</li>
+        <li><strong>Arrived 2022:</strong> up to $33,500</li>
+        <li><strong>Arrived 2023:</strong> up to $27,500</li>
+        <li><strong>Arrived 2024:</strong> up to $21,000</li>
+        <li><strong>Arrived 2025:</strong> up to $14,000</li>
         <li><strong>Arrived 2026:</strong> up to $7,000</li>
       </ul>
       <h4>Important warning for non-residents</h4>
